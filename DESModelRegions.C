@@ -55,6 +55,17 @@ const Foam::word Foam::functionObjects::DESModelRegions::modelName
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
+void Foam::functionObjects::DESModelRegions::writeFileHeader(const label i)
+{
+    writeHeader(file(), "DES model region coverage (% volume)");
+
+    writeCommented(file(), "Time");
+    writeTabbed(file(), "LES");
+    writeTabbed(file(), "RAS");
+    file() << endl;
+}
+
+
 bool Foam::functionObjects::DESModelRegions::compressible()
 {
     if (obr_.foundObject<compressible::turbulenceModel>(modelName))
@@ -85,8 +96,10 @@ Foam::functionObjects::DESModelRegions::DESModelRegions
     const dictionary& dict
 )
 :
-    fvMeshFunctionObject(name, runTime, dict)
+    fvMeshFunctionObject(name, runTime, dict),
+    logFiles(obr_, name)
 {
+    read(dict);
 }
 
 
@@ -107,6 +120,11 @@ bool Foam::functionObjects::DESModelRegions::execute()
 bool Foam::functionObjects::DESModelRegions::write()
 {
     bool comp = compressible();
+    label DESpresent = false;
+    scalar prc = 0;
+
+    Log << type() << " " << name() <<  " write:" << nl;
+    logFiles::write();
 
     if (comp)
     {
@@ -123,7 +141,14 @@ bool Foam::functionObjects::DESModelRegions::write()
             const cmpDESModel& des = dynamic_cast<const cmpDESModel&>(model);
             tmp<volScalarField> tdesField(des.LESRegion());
             volScalarField &desField = tdesField.ref();
+
+            Log << "    writing field " << desField.name() << nl;
             desField.write();
+
+            prc =
+                gSum(desField.primitiveField()*mesh_.V())
+              / gSum(mesh_.V())*100.0;
+            DESpresent = true;
         }
     }
     else
@@ -141,9 +166,37 @@ bool Foam::functionObjects::DESModelRegions::write()
             const icoDESModel& des = dynamic_cast<const icoDESModel&>(model);
             tmp<volScalarField> tdesField(des.LESRegion());
             volScalarField &desField = tdesField.ref();
+
+            Log << "    writing field " << desField.name() << nl;
             desField.write();
+
+            DESpresent = true;
+            prc =
+                gSum(desField.primitiveField()*mesh_.V())
+              / gSum(mesh_.V())*100.0;
         }
     }
+
+    if (DESpresent)
+    {
+        if (Pstream::master())
+        {
+            writeTime(file());
+            file()
+                << token::TAB << prc
+                << token::TAB << 100.0 - prc
+                << endl;
+        }
+
+        Log << "    LES = " << prc << " % (volume)" << nl
+            << "    RAS = " << 100.0 - prc << " % (volume)";
+    }
+    else
+    {
+        Log << "    No DES turbulence model found in database" << nl;
+    }
+
+    Log << endl;
 
     return true;
 }

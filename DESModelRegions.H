@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is a derivative work of OpenFOAM.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -25,7 +25,11 @@ Class
     Foam::functionObjects::DESModelRegions
 
 Description
-    Stores turbulence fields on the mesh database for further manipulation.
+    This function object writes out an indicator field for DES turbulence
+    calculations, that is:
+
+    - 0 for RAS regions
+    - 1 for LES regions
 
 See also
     Foam::functionObjects::fvMeshFunctionObject
@@ -40,9 +44,7 @@ SourceFiles
 #define functionObjects_DESModelRegions_H
 
 #include "fvMeshFunctionObject.H"
-#include "HashSet.H"
-#include "NamedEnum.H"
-#include "volFieldsFwd.H"
+#include "logFiles.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -57,7 +59,8 @@ namespace functionObjects
 
 class DESModelRegions
 :
-    public fvMeshFunctionObject
+    public fvMeshFunctionObject,
+    public logFiles
 {
 public:
 
@@ -70,6 +73,9 @@ protected:
 
 
     // Protected Member Functions
+
+        //- File header information
+        virtual void writeFileHeader(const label i);
 
         //- Return true if compressible turbulence model is identified
         bool compressible();
