@@ -99,6 +99,7 @@ Foam::functionObjects::DESModelRegions::DESModelRegions
     fvMeshFunctionObject(name, runTime, dict),
     logFiles(obr_, name)
 {
+    resetName(typeName);
     read(dict);
 }
 
