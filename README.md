@@ -47,15 +47,17 @@ For getting and building from git:
 git clone git://github.com/wyldckat/DESModelRegions.git
 cd DESModelRegions
 wmake
+wclean
 ```
 
 Or for getting and building from zip:
 
 ```
-wget "https://github.com/wyldckat/yPlusLESWCompressible/archive/master.zip" -O DESModelRegions.zip
+wget "https://github.com/wyldckat/DESModelRegions/archive/master.zip" -O DESModelRegions.zip
 unzip DESModelRegions.zip
 cd DESModelRegions-master
 wmake
+wclean
 ```
 
 
