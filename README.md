@@ -46,7 +46,7 @@ For getting and building from git:
 ```
 git clone git://github.com/wyldckat/DESModelRegions.git
 cd DESModelRegions
-wmake DESModelRegions
+wmake
 ```
 
 Or for getting and building from zip:
