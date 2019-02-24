@@ -26,6 +26,7 @@ License
 #include "DESModelRegions.H"
 #include "turbulentTransportModel.H"
 #include "turbulentFluidThermoModel.H"
+#include "turbulentFluidThermoModels.H"
 #include "wallDist.H"
 #include "bound.H"
 #include "SpalartAllmarasDES.H"
@@ -134,7 +135,7 @@ bool Foam::functionObjects::DESModelRegions::write()
 
         typedef LESModels::SpalartAllmarasDES
         <
-            compressible::turbulenceModel
+            EddyDiffusivity<fluidThermoCompressibleTurbulenceModel>
         > cmpDESModel;
 
         if (isA<cmpDESModel>(model))
